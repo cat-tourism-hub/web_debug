@@ -17,6 +17,8 @@ class MyAppBarState extends State<MyAppBar> {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      elevation: 3,
+      shadowColor: Colors.grey,
       title: _isSearching ? _buildSearchField() : Text(dashboardTitle),
       actions: _buildActions(),
     );

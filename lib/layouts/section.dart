@@ -27,7 +27,7 @@ class SectionWithTitleAndButton extends StatelessWidget {
                 style:
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              ElevatedButton(
+              TextButton(
                 onPressed: () {
                   // Handle "See All" button tap
                 },

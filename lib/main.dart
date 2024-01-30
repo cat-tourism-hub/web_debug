@@ -1,14 +1,18 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tourism_hub/Providers/internet_connection.dart';
 import 'package:tourism_hub/dashboard.dart';
 import 'package:tourism_hub/firebase_options.dart';
 import 'package:tourism_hub/strings.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MyApp());
+  runApp(ChangeNotifierProvider(
+    create: (context) => InternetConnectionProvider(),
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -20,10 +24,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: appName,
       theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-              seedColor: const Color.fromARGB(255, 10, 117, 204)),
-          useMaterial3: true,
-          fontFamily: 'Poppins'),
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color.fromARGB(255, 10, 117, 204)),
+        useMaterial3: true,
+        fontFamily: 'Poppins',
+      ),
       home: const MyHomePage(),
     );
   }
@@ -37,20 +42,18 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late final WebViewController controller;
-
-  @override
-  void initState() {
-    super.initState();
-    // controller = WebViewController()
-    //   ..setJavaScriptMode(JavaScriptMode.unrestricted)
-    //   ..loadRequest(
-    //     Uri.parse('https://tourism-hub.onrender.com'),
-    //   );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return const Dashboard();
+    return Consumer<InternetConnectionProvider>(
+      builder: (context, internetConnectionProvider, child) {
+        if (internetConnectionProvider.isConnected) {
+          return const Dashboard();
+        } else {
+          return const Center(
+            child: Text('No Internet Connection'),
+          );
+        }
+      },
+    );
   }
 }

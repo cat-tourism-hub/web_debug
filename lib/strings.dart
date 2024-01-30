@@ -5,3 +5,4 @@ String restaurant = 'Restaurant';
 String carRentals = 'Car Rental';
 String delicacies = 'Delicacies';
 String seeAll = 'See All';
+String email = 'Email address';

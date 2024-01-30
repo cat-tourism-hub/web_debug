@@ -20,6 +20,9 @@ dependencies:
   firebase_core:
   firebase_ui_auth:
   firebase_storage:
+  provider:
+  connectivity:
+  page_transition:
 
 dev_dependencies:
   flutter_test:

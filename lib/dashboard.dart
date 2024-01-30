@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:tourism_hub/Models/Establishment.dart';
 import 'package:tourism_hub/Query/db_query.dart';
-import 'package:tourism_hub/accomodation.dart';
-import 'package:tourism_hub/app_bar.dart';
-import 'package:tourism_hub/car_rental.dart';
-import 'package:tourism_hub/drawer.dart';
-import 'package:tourism_hub/item_card.dart';
+import 'package:tourism_hub/layouts/car_rental.dart';
+import 'package:tourism_hub/layouts/item_info.dart';
+import 'package:tourism_hub/layouts/restaurant.dart';
 import 'package:tourism_hub/strings.dart';
+
+import 'layouts/accomodation.dart';
+import 'layouts/app_bar.dart';
+import 'layouts/drawer.dart';
+import 'layouts/section.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -16,22 +20,31 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  late List<Establishment> establishments;
+  late List<Establishment> accommodations = [];
+  late List<Establishment> restaurants = [];
+  late List<Establishment> carRental = [];
 
   @override
   void initState() {
-    super.initState();
-
-    // Initialize the list
-    establishments = [];
-
-    // Call the function to fetch all establishments
     fetchAllEstablishments().then((fetchedEstablishments) {
-      // Update the state with the fetched data
       setState(() {
-        establishments = fetchedEstablishments;
+        for (var est in fetchedEstablishments) {
+          if (est.bType == 'Hotel & Restaurant' ||
+              est.bType == 'Accommodation') {
+            accommodations.add(est);
+          }
+
+          if (est.bType == 'Restaurant' || est.bType == 'Hotel & Restaurant') {
+            restaurants.add(est);
+          }
+
+          if (est.bType == 'Car Rental') {
+            carRental.add(est);
+          }
+        }
       });
     });
+    super.initState();
   }
 
   @override
@@ -49,92 +62,85 @@ class _DashboardState extends State<Dashboard> {
               title: accomodation,
               buttonText: seeAll,
               children: [
-                // Horizontal List View for Accommodation
                 SizedBox(
-                  height: 200,
-                  child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: establishments.length,
-                      itemBuilder: (context, index) {
-                        Establishment establishment = establishments[index];
+                  height: 220,
+                  child: accommodations.isEmpty
+                      ? const Center(
+                          child: Text('No accommodations available.'))
+                      : ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: accommodations.length,
+                          itemBuilder: (context, index) {
+                            Establishment establishment = accommodations[index];
 
-                        //Check if the establishment type is equal to "accommodation"
-                        if ((establishment.bType == 'Accommodation') ||
-                            (establishment.bType == 'Hotel & Restaurant')) {
-                          return AccommodationCard(
-                            name: establishment.bName,
-                            location:
-                                '${establishment.location['barangay']}, ${establishment.location['municipality']}',
-                            price: '\$100',
-                            // Add image URL or asset path for each card
-                            imageUrl: establishment.banner,
-                          );
-                        } else {
-                          return const Center(child: Text('No data available'));
-                        }
-                      }),
+                            return AccommodationCard(
+                                establishment: establishment,
+                                onTap: () {
+                                  Navigator.of(context).push(PageTransition(
+                                      type:
+                                          PageTransitionType.rightToLeftJoined,
+                                      child: ItemInfo(
+                                          establishment: establishment),
+                                      duration:
+                                          const Duration(milliseconds: 300),
+                                      reverseDuration:
+                                          const Duration(milliseconds: 300),
+                                      childCurrent: widget));
+                                });
+                          }),
                 )
               ],
             ),
-
+            const SizedBox(height: 10),
             //Restaurant Section
             SectionWithTitleAndButton(
               title: restaurant,
               buttonText: seeAll,
               children: [
-                // Horizontal List View for Restaurants
                 SizedBox(
-                  height: 200,
-                  child: FutureBuilder(
-                      future: getAllRestaurant(),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          List<Establishment> data =
-                              snapshot.data as List<Establishment>;
+                  height: 220,
+                  child: restaurants.isEmpty
+                      ? const Center(child: Text('No restaurants available.'))
+                      : ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: restaurants.length,
+                          itemBuilder: (context, index) {
+                            Establishment establishment = restaurants[index];
 
-                          return ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: data.length,
-                            itemBuilder: (context, index) {
-                              Establishment establishment = data[index];
-                              return AccommodationCard(
-                                  name: establishment.bName,
-                                  location:
-                                      '${establishment.location['barangay']}, ${establishment.location['municipality']}',
-                                  price: '\$100',
-                                  // Add image URL or asset path for each card
-                                  imageUrl: establishment.banner);
-                            },
-                          );
-                        }
-                        return const Center(child: Text('No data available'));
-                      }),
+                            return RestaurantCard(
+                              name: establishment.bName,
+                              location:
+                                  '${establishment.location['barangay']}, ${establishment.location['municipality']}',
+                              imageUrl: establishment.banner,
+                            );
+                          }),
                 ),
               ],
             ),
-
+            const SizedBox(height: 10),
             // Car Rentals Section
             SectionWithTitleAndButton(
               title: carRentals,
               buttonText: seeAll,
               children: [
-                // Horizontal List View for Car Rentals
                 SizedBox(
                   height: 200,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: 5,
-                    itemBuilder: (context, index) {
-                      return CarRentalCard(
-                        name: 'Car Rental $index',
-                        location: 'Location $index',
-                        price: '\$50/day',
-                        // Add image URL or asset path for each card
-                        imageUrl:
-                            'https://via.placeholder.com/150x150.png?text=Image+${index + 1}',
-                      );
-                    },
-                  ),
+                  child: carRental.isEmpty
+                      ? const Center(child: Text('No car rental available.'))
+                      : ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: carRental.length,
+                          itemBuilder: (context, index) {
+                            Establishment establishment = carRental[index];
+
+                            return CarRentalCard(
+                              name: establishment.bName,
+                              location:
+                                  '${establishment.location['barangay']}, ${establishment.location['municipality']}',
+                              price: '100/day',
+                              imageUrl: establishment.banner,
+                            );
+                          }),
                 ),
               ],
             ),

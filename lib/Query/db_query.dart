@@ -2,10 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tourism_hub/Models/Establishment.dart';
 
 final db = FirebaseFirestore.instance;
+CollectionReference collection = db.collection('establishment');
 
 Future<List<Establishment>> fetchAllEstablishments() async {
   List<Establishment> establishments = [];
-  CollectionReference collection = db.collection('establishment');
 
   var query = await collection.get();
 
@@ -21,7 +21,6 @@ Future<List<Establishment>> fetchAllEstablishments() async {
 
 getAllRestaurant() async {
   List<Establishment> establishment = [];
-  var collection = db.collection('establishment');
 
   var query = await collection.where('b_info.b_type',
       whereIn: ['Hotel & Restaurant', 'Restaurant']).get();

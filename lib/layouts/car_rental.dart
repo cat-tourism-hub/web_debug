@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class AccommodationCard extends StatelessWidget {
+class CarRentalCard extends StatelessWidget {
   final String name;
   final String location;
   final String price;
   final String imageUrl;
 
-  const AccommodationCard({
+  const CarRentalCard({
     super.key,
     required this.name,
     required this.location,
