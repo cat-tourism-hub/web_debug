@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:tourism_hub/Models/Establishment.dart';
-import 'package:tourism_hub/Query/db_query.dart';
+import 'package:provider/provider.dart';
+import 'package:tourism_hub/Models/establishment.dart';
+import 'package:tourism_hub/Providers/authenticated_user.dart';
+import 'package:tourism_hub/Providers/establishment_list.dart';
+import 'package:tourism_hub/Providers/internet_connection.dart';
 import 'package:tourism_hub/layouts/car_rental.dart';
 import 'package:tourism_hub/layouts/item_info.dart';
 import 'package:tourism_hub/layouts/restaurant.dart';
@@ -20,133 +23,144 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  late List<Establishment> accommodations = [];
-  late List<Establishment> restaurants = [];
-  late List<Establishment> carRental = [];
-
   @override
   void initState() {
-    fetchAllEstablishments().then((fetchedEstablishments) {
-      setState(() {
-        for (var est in fetchedEstablishments) {
-          if (est.bType == 'Hotel & Restaurant' ||
-              est.bType == 'Accommodation') {
-            accommodations.add(est);
-          }
-
-          if (est.bType == 'Restaurant' || est.bType == 'Hotel & Restaurant') {
-            restaurants.add(est);
-          }
-
-          if (est.bType == 'Car Rental') {
-            carRental.add(est);
-          }
-        }
-      });
-    });
     super.initState();
+    final provider = Provider.of<EstablishmentProvider>(context, listen: false);
+    final user = Provider.of<UserProvider>(context, listen: false);
+
+    provider.fetchEstablishment();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: const CustomDrawer(),
-      appBar: const MyAppBar(),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Accommodation Section
-            SectionWithTitleAndButton(
-              title: accomodation,
-              buttonText: seeAll,
+    return Consumer2<EstablishmentProvider, InternetConnectionProvider>(
+      builder: (context, value, internet, child) {
+        return Scaffold(
+          drawer: const CustomDrawer(),
+          appBar: const MyAppBar(),
+          body: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(
-                  height: 220,
-                  child: accommodations.isEmpty
-                      ? const Center(
-                          child: Text('No accommodations available.'))
-                      : ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: accommodations.length,
-                          itemBuilder: (context, index) {
-                            Establishment establishment = accommodations[index];
+                // Accommodation Section
+                SectionWithTitleAndButton(
+                  title: labelAccommodation,
+                  buttonText: labelSeeAll,
+                  children: [
+                    SizedBox(
+                      height: 220,
+                      child: value.accommodations.isEmpty
+                          ? const Center(
+                              child: Text('No accommodations available.'))
+                          : ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: value.accommodations.length,
+                              itemBuilder: (context, index) {
+                                Establishment establishment =
+                                    value.accommodations[index];
+                                Alignment alignment = Alignment(
+                                    (index / value.accommodations.length * 2) -
+                                        1.0,
+                                    0.0);
+                                return AccommodationCard(
+                                    establishment: establishment,
+                                    onTap: () {
+                                      Navigator.of(context).push(PageTransition(
+                                          type: PageTransitionType.scale,
+                                          alignment: alignment,
+                                          child: ItemInfo(
+                                              type: labelAccommodation,
+                                              establishment: establishment),
+                                          duration:
+                                              const Duration(milliseconds: 400),
+                                          childCurrent: widget));
+                                    });
+                              }),
+                    )
+                  ],
+                ),
+                const SizedBox(height: 10),
 
-                            return AccommodationCard(
-                                establishment: establishment,
-                                onTap: () {
-                                  Navigator.of(context).push(PageTransition(
-                                      type:
-                                          PageTransitionType.rightToLeftJoined,
-                                      child: ItemInfo(
-                                          establishment: establishment),
-                                      duration:
-                                          const Duration(milliseconds: 300),
-                                      reverseDuration:
-                                          const Duration(milliseconds: 300),
-                                      childCurrent: widget));
-                                });
-                          }),
-                )
-              ],
-            ),
-            const SizedBox(height: 10),
-            //Restaurant Section
-            SectionWithTitleAndButton(
-              title: restaurant,
-              buttonText: seeAll,
-              children: [
-                SizedBox(
-                  height: 220,
-                  child: restaurants.isEmpty
-                      ? const Center(child: Text('No restaurants available.'))
-                      : ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: restaurants.length,
-                          itemBuilder: (context, index) {
-                            Establishment establishment = restaurants[index];
+                //Restaurant Section
+                SectionWithTitleAndButton(
+                  title: labelRestaurant,
+                  buttonText: labelSeeAll,
+                  children: [
+                    SizedBox(
+                      height: 220,
+                      child: value.restaurants.isEmpty
+                          ? const Center(
+                              child: Text('No restaurants available.'))
+                          : ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: value.restaurants.length,
+                              itemBuilder: (context, index) {
+                                Establishment establishment =
+                                    value.restaurants[index];
+                                Alignment alignment = Alignment(
+                                    (index / value.restaurants.length * 2) -
+                                        1.0,
+                                    0.0);
 
-                            return RestaurantCard(
-                              name: establishment.bName,
-                              location:
-                                  '${establishment.location['barangay']}, ${establishment.location['municipality']}',
-                              imageUrl: establishment.banner,
-                            );
-                          }),
+                                return RestaurantCard(
+                                    establishment: establishment,
+                                    onTap: () {
+                                      Navigator.of(context).push(PageTransition(
+                                          type: PageTransitionType.scale,
+                                          alignment: alignment,
+                                          child: ItemInfo(
+                                              type: labelRestaurant,
+                                              establishment: establishment),
+                                          duration:
+                                              const Duration(milliseconds: 400),
+                                          childCurrent: widget));
+                                    });
+                              }),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+
+                // Car Rentals Section
+                SectionWithTitleAndButton(
+                  title: labelCarRentals,
+                  buttonText: labelSeeAll,
+                  children: [
+                    SizedBox(
+                      height: 200,
+                      child: value.carRental.isEmpty
+                          ? const Center(
+                              child: Text('No car rental available.'))
+                          : ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: value.carRental.length,
+                              itemBuilder: (context, index) {
+                                Establishment establishment =
+                                    value.carRental[index];
+
+                                return CarRentalCard(
+                                  name: establishment.bName,
+                                  location:
+                                      '${establishment.location['barangay']}, ${establishment.location['municipality']}',
+                                  price: '100/day',
+                                  imageUrl: establishment.banner,
+                                );
+                              }),
+                    ),
+                  ],
                 ),
               ],
             ),
-            const SizedBox(height: 10),
-            // Car Rentals Section
-            SectionWithTitleAndButton(
-              title: carRentals,
-              buttonText: seeAll,
-              children: [
-                SizedBox(
-                  height: 200,
-                  child: carRental.isEmpty
-                      ? const Center(child: Text('No car rental available.'))
-                      : ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: carRental.length,
-                          itemBuilder: (context, index) {
-                            Establishment establishment = carRental[index];
-
-                            return CarRentalCard(
-                              name: establishment.bName,
-                              location:
-                                  '${establishment.location['barangay']}, ${establishment.location['municipality']}',
-                              price: '100/day',
-                              imageUrl: establishment.banner,
-                            );
-                          }),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

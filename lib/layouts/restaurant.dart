@@ -1,34 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:tourism_hub/layouts/base_card.dart';
 
-class RestaurantCard extends StatelessWidget {
-  final String name;
-  final String location;
-
-  final String imageUrl;
-
-  const RestaurantCard({
-    super.key,
-    required this.name,
-    required this.location,
-    required this.imageUrl,
-  });
+class RestaurantCard extends BaseCard {
+  const RestaurantCard({super.key, required super.establishment, super.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.all(8),
-      elevation: 3,
-      child: Stack(alignment: Alignment.center, children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Align(
-              alignment: Alignment.center,
-              child: Image.network(
-                imageUrl,
-                height: 100,
+    return InkWell(
+      onTap: onTap,
+      child: Card(
+        margin: const EdgeInsets.all(8),
+        elevation: 3,
+        child: Stack(alignment: Alignment.center, children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.network(
+                establishment.banner,
                 width: 150,
+                height: 100,
                 fit: BoxFit.cover,
                 loadingBuilder: (BuildContext context, Widget child,
                     ImageChunkEvent? loadingProgress) {
@@ -52,33 +43,33 @@ class RestaurantCard extends StatelessWidget {
                           child: Text('Error loading image')));
                 },
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  SizedBox(
-                    width: 130,
-                    child: Text(name,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 2,
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                  SizedBox(
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
                       width: 130,
-                      child: Text(
-                        location,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 2,
-                      )),
-                ],
+                      child: Text(establishment.bName,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                          style: Theme.of(context).textTheme.bodyMedium),
+                    ),
+                    SizedBox(
+                        width: 130,
+                        child: Text(
+                          '${establishment.location['barangay']}, ${establishment.location['municipality']}',
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                        )),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
-      ]),
+            ],
+          ),
+        ]),
+      ),
     );
   }
 }

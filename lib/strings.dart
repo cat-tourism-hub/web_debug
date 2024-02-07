@@ -1,8 +1,10 @@
 String appName = 'Catanduanes Tourism Hub';
 String dashboardTitle = 'Tourism Hub';
-String accomodation = 'Accomodation';
-String restaurant = 'Restaurant';
-String carRentals = 'Car Rental';
-String delicacies = 'Delicacies';
-String seeAll = 'See All';
-String email = 'Email address';
+String labelAccommodation = 'Accommodation';
+String labelAmenities = 'Amenities';
+String labelRestaurant = 'Restaurant';
+String labelMenu = 'Menu';
+String labelCarRentals = 'Car Rental';
+String labelDelicacies = 'Delicacies';
+String labelSeeAll = 'See All';
+String labelEmail = 'Email address';

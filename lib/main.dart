@@ -1,6 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tourism_hub/Providers/authenticated_user.dart';
+import 'package:tourism_hub/Providers/establishment_list.dart';
 import 'package:tourism_hub/Providers/internet_connection.dart';
 import 'package:tourism_hub/dashboard.dart';
 import 'package:tourism_hub/firebase_options.dart';
@@ -21,39 +23,38 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: appName,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color.fromARGB(255, 10, 117, 204)),
-        useMaterial3: true,
-        fontFamily: 'Poppins',
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => EstablishmentProvider()),
+        ChangeNotifierProvider(create: (_) => InternetConnectionProvider()),
+        ChangeNotifierProvider(create: (_) => UserProvider())
+      ],
+      child: MaterialApp(
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color.fromARGB(255, 10, 117, 204)),
+          useMaterial3: false,
+          fontFamily: 'Poppins',
+          inputDecorationTheme: InputDecorationTheme(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          outlinedButtonTheme: OutlinedButtonThemeData(
+            style: ButtonStyle(
+              padding: MaterialStateProperty.all<EdgeInsets>(
+                const EdgeInsets.all(20),
+              ),
+              backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+              foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+            ),
+          ),
+        ),
+        title: appName,
+        // initialRoute: '/start',
+        initialRoute: '/dashboard',
+        routes: {'/dashboard': (context) => const Dashboard()},
       ),
-      home: const MyHomePage(),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<InternetConnectionProvider>(
-      builder: (context, internetConnectionProvider, child) {
-        if (internetConnectionProvider.isConnected) {
-          return const Dashboard();
-        } else {
-          return const Center(
-            child: Text('No Internet Connection'),
-          );
-        }
-      },
     );
   }
 }

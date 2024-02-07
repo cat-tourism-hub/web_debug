@@ -33,15 +33,24 @@ class CarRentalCard extends StatelessWidget {
                 fit: BoxFit.cover,
                 loadingBuilder: (BuildContext context, Widget child,
                     ImageChunkEvent? loadingProgress) {
-                  if (loadingProgress == null) {
-                    return child;
-                  } else {
-                    return CircularProgressIndicator(
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded /
-                              (loadingProgress.expectedTotalBytes ?? 1)
-                          : null,
-                    );
+                  try {
+                    print('TRYING');
+                    if (loadingProgress == null) {
+                      return child;
+                    } else {
+                      return CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                                (loadingProgress.expectedTotalBytes ?? 1)
+                            : null,
+                      );
+                    }
+                  } on Exception catch (_) {
+                    return const SizedBox(
+                        height: 100,
+                        child: Align(
+                            alignment: Alignment.center,
+                            child: Text('Error loading image')));
                   }
                 },
                 errorBuilder: (BuildContext context, Object error,

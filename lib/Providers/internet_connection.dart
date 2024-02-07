@@ -1,8 +1,9 @@
-import 'package:connectivity/connectivity.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 
 class InternetConnectionProvider extends ChangeNotifier {
-  bool _isConnected = true;
+  bool _isConnected = false;
+  late Connectivity _connectivity;
 
   bool get isConnected => _isConnected;
 
@@ -11,6 +12,20 @@ class InternetConnectionProvider extends ChangeNotifier {
       _isConnected = isConnected;
       notifyListeners();
     }
+  }
+
+  InternetConnectionProvider() {
+    _connectivity = Connectivity();
+    _isConnected = false;
+
+    // Subscribe to connectivity changes
+    _connectivity.onConnectivityChanged.listen((result) {
+      _isConnected = result != ConnectivityResult.none;
+      notifyListeners();
+    });
+
+    // Initial check for connectivity
+    checkInternetConnection();
   }
 
   Future<void> checkInternetConnection() async {

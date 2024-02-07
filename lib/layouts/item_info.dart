@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:tourism_hub/Models/Establishment.dart';
+import 'package:tourism_hub/Models/establishment.dart';
 import 'package:tourism_hub/layouts/info_section.dart';
 import 'package:tourism_hub/layouts/product_card.dart';
+import 'package:tourism_hub/strings.dart';
 
 class ItemInfo extends StatefulWidget {
-  const ItemInfo({super.key, required this.establishment});
+  const ItemInfo({super.key, required this.type, required this.establishment});
+  final String type;
   final Establishment establishment;
 
   @override
@@ -37,20 +39,21 @@ class _ItemInfoState extends State<ItemInfo> {
                 borderRadius: BorderRadius.circular(30.0),
                 child: Image.network(
                   widget.establishment.banner,
-                  fit: BoxFit.fill,
+                  fit: BoxFit.cover,
                   loadingBuilder: (BuildContext context, Widget child,
                       ImageChunkEvent? loadingProgress) {
                     if (loadingProgress == null) {
                       return child;
                     } else {
-                      return SizedBox(
-                        width: 100,
-                        height: 100,
-                        child: CircularProgressIndicator(
-                          value: loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded /
-                                  (loadingProgress.expectedTotalBytes ?? 1)
-                              : null,
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    (loadingProgress.expectedTotalBytes ?? 1)
+                                : null,
+                          ),
                         ),
                       );
                     }
@@ -67,12 +70,12 @@ class _ItemInfoState extends State<ItemInfo> {
               ),
               // Section 2: Establishment Info
 
-              const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10.0),
+              Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
                   child: Text(
-                    'Velit irure amet mollit exercitation laborum cillum tempor quis nulla anim deserunt sit ex. Id duis nulla veniam occaecat ea. Eiusmod ipsum velit deserunt consequat.',
+                    widget.establishment.bAbout ?? '',
                     overflow: TextOverflow.ellipsis,
-                    maxLines: 4,
+                    maxLines: 5,
                   )),
 
               // Section 3: Establishment Details
@@ -120,8 +123,12 @@ class _ItemInfoState extends State<ItemInfo> {
 
               // Section 3: Products
               ItemInfoSection(
-                title: 'Rooms',
-                icon: Icons.hotel,
+                title: widget.type == labelAccommodation
+                    ? labelAmenities
+                    : labelMenu,
+                icon: widget.type == labelAccommodation
+                    ? Icons.meeting_room
+                    : Icons.restaurant,
                 children: [
                   SizedBox(
                     height: 150,
