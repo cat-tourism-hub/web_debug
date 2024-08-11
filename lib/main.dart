@@ -5,8 +5,9 @@ import 'package:tourism_hub/Providers/authenticated_user.dart';
 import 'package:tourism_hub/Providers/establishment_list.dart';
 import 'package:tourism_hub/Providers/internet_connection.dart';
 import 'package:tourism_hub/dashboard.dart';
-import 'package:tourism_hub/firebase_options.dart';
 import 'package:tourism_hub/strings.dart';
+
+import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
